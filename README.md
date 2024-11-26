@@ -100,4 +100,6 @@ GET /api/rsvp/user: Get the RSVP status of the logged-in user.
 GET /api/rsvp/event/:eventId: Get all RSVPs for a specific event.
 
 Conclusion
-This Event Management System offers a robust solution for managing events, user RSVPs, and more. With its well-organized backend structure, it can easily be extended to include additional features such as event search, notifications, or even integration with third-party services.
+This Event Management System offers a robust solution for managing events, user RSVPs, and more.
+ With its well-organized backend structure, it can easily be extended to include additional
+features such as event search, notifications, or even integration with third-party services.
