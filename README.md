@@ -48,7 +48,7 @@ The backend is built using **Node.js**, **Express**, and **MongoDB**, and the AP
 
 ---
 
-## **Project Structure**
+
 
 ### **Backend Structure**
 ```plaintext
