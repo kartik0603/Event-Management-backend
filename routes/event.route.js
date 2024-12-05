@@ -5,7 +5,7 @@ const {    createEvent,
 const protect = require("../middleware/auth.middleware.js");
 
 const uploader = require("../middleware/upload.middleware.js");
-const e = require("express");
+
 const eventRouter = express.Router();
 
 

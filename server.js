@@ -37,20 +37,13 @@ dotenv.config();
 
 const app = express();
 
-// Middleware for security
+app.use(morgan("dev"));
 app.use(helmet());
 
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || "*", 
-  methods: ["GET", "POST", "PUT", "DELETE"], 
-  credentials: true,
-}));
+app.use(cors());
 
-// Logging Development 
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-}
+
 
 
 app.use(express.json()); 
@@ -63,23 +56,13 @@ app.use("/api/events", eventRouter);
 app.use("/api/users", userRouter);
 app.use("/api/rsvp", rsvpRouter);
 
+app.get("/", (req, res) => res.json({ message: "Welcome to the Event App API" }));
 
-app.use((err, req, res, next) => {
-  console.error(`Error: ${err.message}`);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === "production" ? null : err.stack,
-  });
-});
+
 
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
-  try {
-    await connectDB();
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  } catch (error) {
-    console.error("Database connection failed:", error.message);
-    process.exit(1); 
-  }
+  console.log(`Server running on port ${PORT}`);
+  await connectDB();
 });
