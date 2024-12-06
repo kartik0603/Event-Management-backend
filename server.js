@@ -1,25 +1,4 @@
-// const express = require("express");
-// require("dotenv").config();
-// const connectDB = require("./config/db.js");
-// const cors = require("cors");
-// const eventRouter = require("./routes/event.route.js");
-// const userRouter = require("./routes/user.route.js");
 
-// const PORT = process.env.PORT || 5000;
-
-// const app = express();
-// app.use(cors());
-
-// app.use(express.json());
-// app.use("/uploads", express.static("uploads"));
-
-// app.use("/api/events", eventRouter);
-// app.use("/api/users", userRouter);
-
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-//   connectDB();
-// });
 
 
 const express = require("express");
@@ -51,7 +30,7 @@ app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
 
-// API Routes
+
 app.use("/api/events", eventRouter);
 app.use("/api/users", userRouter);
 app.use("/api/rsvp", rsvpRouter);

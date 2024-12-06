@@ -1,53 +1,54 @@
 const User = require("../models/user.schema.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { hashPassword, comparePassword } = require("../secure/hashPassword.js");
 require("dotenv").config();
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
 
-  // Basic validation
-  if (!email || !password || !name) {
+ 
+  if (!email || !password || !name || !role) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Validate email format using a simple regex pattern
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: "Invalid email format" });
   }
 
   try {
-    // Check if user already exists
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create the user with the hashed password
+    
+    const hashedPassword = await hashPassword(password);
+
+    
     const user = await User.create({
       name,
       email,
-      password,
+      password: hashedPassword,
+      role,
     });
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    // Send response with the token
-    res.status(201).json({ token });
+    return res
+      .status(201)
+      .json({ message: "User registered successfully", user });
   } catch (error) {
     console.error("Error registering user:", error);
     res
       .status(500)
       .json({ message: "Error registering user", error: error.message });
+ 
+
   }
 };
 
+//  Login
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -58,26 +59,21 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      console.log(`User with email ${email} not found.`);
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // console.log("Stored password:", user.password);
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      console.log(`Incorrect password for user: ${email}`);
-      return res.status(401).json({ message: "Invalid credentials" });
+    const isMatch = await comparePassword(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid password" });
     }
 
-    // If the password is valid, generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET_KEY,
       { expiresIn: "1h" }
     );
 
-    res.json({ token });
+    return res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });

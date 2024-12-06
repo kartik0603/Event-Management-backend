@@ -2,39 +2,38 @@ const RSVP = require("../models/rsvp.schema.js");
 const Event = require("../models/event.schema.js");
 const mongoose = require("mongoose");
 
-// RSVP to an Event
+
 const rsvpToEvent = async (req, res) => {
     try {
       const { event, status } = req.body;
   
-      // Validate input
+     
       if (!event || !["Going", "Not Going"].includes(status)) {
         return res.status(400).json({ message: "Invalid event ID or status." });
       }
   
-      // Validate event ID format
+   
       if (!mongoose.Types.ObjectId.isValid(event)) {
         return res.status(400).json({ message: "Invalid event ID format." });
       }
   
-      // Find the event
       const foundEvent = await Event.findById(event);
       if (!foundEvent) {
         return res.status(400).json({ message: "Event not found." });
       }
   
-      // Ensure RSVP is for future events only
+      //RSVP is for future Events
       if (new Date(foundEvent.date) < new Date()) {
         return res.status(400).json({ message: "Cannot RSVP for past events." });
       }
   
-      // Check if the event is full
+      //   event is full is or Not
       const rsvpCount = await RSVP.countDocuments({ event, status: "Going" });
       if (status === "Going" && rsvpCount >= foundEvent.maxAttendees) {
         return res.status(400).json({ message: "Event is full." });
       }
   
-      // Check if user already RSVP'd
+      // Check  user RSVP
       const existingRSVP = await RSVP.findOne({ event, user: req.user.id });
       if (existingRSVP) {
         existingRSVP.status = status;
@@ -42,7 +41,7 @@ const rsvpToEvent = async (req, res) => {
         return res.json({ message: "RSVP updated successfully.", rsvp: existingRSVP });
       }
   
-      // Create a new RSVP
+      // new RSVP
       const newRSVP = new RSVP({
         event,
         user: req.user.id,
@@ -58,7 +57,7 @@ const rsvpToEvent = async (req, res) => {
   };
   
 
-// Get RSVPs for a User
+// Get RSVPS user
 const getUserRSVPs = async (req, res) => {
   try {
     const rsvps = await RSVP.find({ user: req.user.id })
@@ -72,12 +71,11 @@ const getUserRSVPs = async (req, res) => {
   }
 };
 
-// Get RSVPs for an Event
+// Get RSVPS Event
 const getEventRSVPs = async (req, res) => {
   try {
     const { eventId } = req.params;
 
-    // Validate event existence
     const event = await Event.findById(eventId);
     if (!event) {
       return res.status(404).json({ message: "Event not found." });
